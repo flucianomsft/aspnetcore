@@ -134,6 +134,32 @@ public enum HttpLoggingFields : long
     ResponseBody = 0x800,
 
     /// <summary>
+    /// Flag for logging the HTTP Request <see cref="HttpRequest.Headers"/> including sensitive data.
+    /// Request Headers are logged as soon as the middleware is invoked.
+    /// Headers are not redacted and the collection <see cref="HttpLoggingOptions.RequestHeaders"/> is ignored.
+    /// <p>
+    /// For example:
+    /// Connection: keep-alive
+    /// My-Custom-Request-Header: my-custom-request-header-value
+    /// </p>
+    /// </summary>
+    RequestHeadersIncludeSensitive = 0x1000,
+
+    /// <summary>
+    /// Flag for logging the HTTP Response <see cref="HttpResponse.Headers"/>.
+    /// Response Headers are logged when the <see cref="HttpResponse.Body"/> is written to
+    /// or when <see cref="IHttpResponseBodyFeature.StartAsync(System.Threading.CancellationToken)"/>
+    /// is called.
+    /// Headers are not redacted and the collection <see cref="HttpLoggingOptions.ResponseHeaders"/> is ignored.
+    /// <p>
+    /// For example:
+    /// Content-Length: 16
+    /// My-Custom-Response-Header: my-custom-response-header-value
+    /// </p>
+    /// </summary>
+    ResponseHeadersIncludeSensitive = 0x2000,
+
+    /// <summary>
     /// Flag for logging a collection of HTTP Request properties,
     /// including <see cref="RequestPath"/>, <see cref="RequestProtocol"/>,
     /// <see cref="RequestMethod"/>, and <see cref="RequestScheme"/>.
@@ -147,10 +173,22 @@ public enum HttpLoggingFields : long
     RequestPropertiesAndHeaders = RequestProperties | RequestHeaders,
 
     /// <summary>
+    /// Flag for logging HTTP Request properties and headers including sensitive data.
+    /// Includes <see cref="RequestProperties"/> and <see cref="RequestHeaders"/>
+    /// </summary>
+    RequestPropertiesAndHeadersIncludeSensitive = RequestProperties | RequestHeadersIncludeSensitive,
+
+    /// <summary>
     /// Flag for logging HTTP Response properties and headers.
     /// Includes <see cref="ResponseStatusCode"/> and <see cref="ResponseHeaders"/>
     /// </summary>
     ResponsePropertiesAndHeaders = ResponseStatusCode | ResponseHeaders,
+
+    /// <summary>
+    /// Flag for logging HTTP Response properties and headers including sensitive data.
+    /// Includes <see cref="ResponseStatusCode"/> and <see cref="ResponseHeaders"/>
+    /// </summary>
+    ResponsePropertiesAndHeadersIncludeSensitive = ResponseStatusCode | ResponseHeadersIncludeSensitive,
 
     /// <summary>
     /// Flag for logging the entire HTTP Request.
@@ -161,6 +199,14 @@ public enum HttpLoggingFields : long
     Request = RequestPropertiesAndHeaders | RequestBody,
 
     /// <summary>
+    /// Flag for logging the entire HTTP Request including sensitive data.
+    /// Includes <see cref="RequestPropertiesAndHeaders"/> and <see cref="RequestBody"/>.
+    /// Logging the request body has performance implications, as it requires buffering
+    /// the entire request body up to <see cref="HttpLoggingOptions.RequestBodyLogLimit"/>.
+    /// </summary>
+    RequestIncludeSensitive = RequestPropertiesAndHeadersIncludeSensitive | RequestBody,
+
+    /// <summary>
     /// Flag for logging the entire HTTP Response.
     /// Includes <see cref="ResponsePropertiesAndHeaders"/> and <see cref="ResponseBody"/>.
     /// Logging the response body has performance implications, as it requires buffering
@@ -169,11 +215,28 @@ public enum HttpLoggingFields : long
     Response = ResponseStatusCode | ResponseHeaders | ResponseBody,
 
     /// <summary>
+    /// Flag for logging the entire HTTP Response including sensitive data.
+    /// Includes <see cref="ResponsePropertiesAndHeaders"/> and <see cref="ResponseBody"/>.
+    /// Logging the response body has performance implications, as it requires buffering
+    /// the entire response body up to <see cref="HttpLoggingOptions.ResponseBodyLogLimit"/>.
+    /// </summary>
+    ResponseIncludeSensitive = ResponseStatusCode | ResponseHeadersIncludeSensitive | ResponseBody,
+
+    /// <summary>
     /// Flag for logging both the HTTP Request and Response.
     /// Includes <see cref="Request"/> and <see cref="Response"/>.
     /// Logging the request and response body has performance implications, as it requires buffering
     /// the entire request and response body up to the <see cref="HttpLoggingOptions.RequestBodyLogLimit"/>
     /// and <see cref="HttpLoggingOptions.ResponseBodyLogLimit"/>.
     /// </summary>
-    All = Request | Response
+    All = Request | Response,
+
+    /// <summary>
+    /// Flag for logging both the HTTP Request and Response including sensitive data.
+    /// Includes <see cref="Request"/> and <see cref="Response"/>.
+    /// Logging the request and response body has performance implications, as it requires buffering
+    /// the entire request and response body up to the <see cref="HttpLoggingOptions.RequestBodyLogLimit"/>
+    /// and <see cref="HttpLoggingOptions.ResponseBodyLogLimit"/>.
+    /// </summary>
+    AllIncludeSensitive = RequestIncludeSensitive | ResponseIncludeSensitive
 }

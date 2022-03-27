@@ -102,6 +102,13 @@ internal sealed class HttpLoggingMiddleware
             {
                 FilterHeaders(list, request.Headers, options._internalRequestHeaders);
             }
+            else if (options.LoggingFields.HasFlag(HttpLoggingFields.RequestHeadersIncludeSensitive))
+            {
+                foreach (var (key, value) in request.Headers)
+                {
+                    AddToList(list, key, value);
+                }
+            }
 
             if (options.LoggingFields.HasFlag(HttpLoggingFields.RequestBody))
             {
@@ -210,6 +217,13 @@ internal sealed class HttpLoggingMiddleware
         if (options.LoggingFields.HasFlag(HttpLoggingFields.ResponseHeaders))
         {
             FilterHeaders(list, response.Headers, options._internalResponseHeaders);
+        }
+        else if (options.LoggingFields.HasFlag(HttpLoggingFields.ResponseHeadersIncludeSensitive))
+        {
+            foreach (var (key, value) in response.Headers)
+            {
+                AddToList(list, key, value);
+            }
         }
 
         if (list.Count > 0)
