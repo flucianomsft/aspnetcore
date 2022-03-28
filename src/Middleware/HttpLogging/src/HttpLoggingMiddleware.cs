@@ -112,6 +112,13 @@ namespace Microsoft.AspNetCore.HttpLogging
                 {
                     FilterHeaders(list, request.Headers, options._internalRequestHeaders);
                 }
+                else if (options.LoggingFields.HasFlag(HttpLoggingFields.RequestHeadersIncludeSensitive))
+                {
+                    foreach (var (key, value) in request.Headers)
+                    {
+                        AddToList(list, key, value);
+                    }
+                }
 
                 if (options.LoggingFields.HasFlag(HttpLoggingFields.RequestBody))
                 {
@@ -220,6 +227,13 @@ namespace Microsoft.AspNetCore.HttpLogging
             if (options.LoggingFields.HasFlag(HttpLoggingFields.ResponseHeaders))
             {
                 FilterHeaders(list, response.Headers, options._internalResponseHeaders);
+            }
+            else if (options.LoggingFields.HasFlag(HttpLoggingFields.ResponseHeadersIncludeSensitive))
+            {
+                foreach (var (key, value) in response.Headers)
+                {
+                    AddToList(list, key, value);
+                }
             }
 
             var httpResponseLog = new HttpResponseLog(list);
